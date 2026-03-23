@@ -101,6 +101,12 @@ export interface IOrganizationMember extends Document {
   joinedAt: Date;
 }
 
+export interface IOrganizationFollower extends Document {
+  organizationId: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
+  createdAt: Date;
+}
+
 export interface IVerificationCode extends Document {
   email: string;
   code: string;
@@ -266,6 +272,16 @@ const OrganizationMemberSchema = new Schema<IOrganizationMember>(
 OrganizationMemberSchema.index({ organizationId: 1, userId: 1 }, { unique: true });
 OrganizationMemberSchema.index({ organizationId: 1 });
 
+const OrganizationFollowerSchema = new Schema<IOrganizationFollower>(
+  {
+    organizationId: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    createdAt: { type: Date, default: Date.now },
+  }
+);
+OrganizationFollowerSchema.index({ organizationId: 1, userId: 1 }, { unique: true });
+OrganizationFollowerSchema.index({ userId: 1 });
+
 const VerificationCodeSchema = new Schema<IVerificationCode>(
   {
     email: { type: String, required: true },
@@ -335,6 +351,7 @@ export const EventComment = mongoose.model<IEventComment>('EventComment', EventC
 export const CalendarSave = mongoose.model<ICalendarSave>('CalendarSave', CalendarSaveSchema);
 export const Notification = mongoose.model<INotification>('Notification', NotificationSchema);
 export const OrganizationMember = mongoose.model<IOrganizationMember>('OrganizationMember', OrganizationMemberSchema);
+export const OrganizationFollower = mongoose.model<IOrganizationFollower>('OrganizationFollower', OrganizationFollowerSchema);
 export const VerificationCode = mongoose.model<IVerificationCode>('VerificationCode', VerificationCodeSchema);
 export const OrganizationRequest = mongoose.model<IOrganizationRequest>('OrganizationRequest', OrganizationRequestSchema);
 export const EventRSVP = mongoose.model<IEventRSVP>('EventRSVP', EventRSVPSchema);

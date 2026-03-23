@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { Organization, OrganizationMember, User, Event, CalendarSave, EventUpvote, EventComment, EventRSVP, AuditLog } from '../models';
+import { Organization, OrganizationMember, User, Event, CalendarSave, EventUpvote, EventComment, EventRSVP, AuditLog, OrganizationFollower } from '../models';
 import { authMiddleware } from '../middleware';
 import mongoose from 'mongoose';
 import { logAudit } from '../audit';
@@ -330,6 +330,108 @@ router.get('/:slug', async (req: Request, res: Response) => {
     res.json(organization);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch organization' });
+  }
+});
+
+// Get user's following organizations
+router.get('/user/following', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    if (!req.userId) return res.status(401).json({ error: 'Unauthorized' });
+    const follows = await OrganizationFollower.find({ userId: new mongoose.Types.ObjectId(req.userId) })
+      .select('organizationId')
+      .lean();
+    res.json(follows.map(f => f.organizationId));
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch following organizations' });
+  }
+});
+
+// Toggle follow organization
+router.post('/:id/follow', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const orgId = req.params.id;
+    const userId = req.userId;
+    
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+    if (!mongoose.Types.ObjectId.isValid(orgId)) {
+      return res.status(400).json({ error: 'Invalid organization id' });
+    }
+
+    const org = await Organization.findById(orgId);
+    if (!org) return res.status(404).json({ error: 'Organization not found' });
+
+    const existing = await OrganizationFollower.findOne({
+      organizationId: new mongoose.Types.ObjectId(orgId),
+      userId: new mongoose.Types.ObjectId(userId)
+    });
+
+    if (existing) {
+      await OrganizationFollower.deleteOne({ _id: existing._id });
+      await Organization.updateOne({ _id: org._id }, { $inc: { followerCount: -1 } });
+      res.json({ following: false });
+    } else {
+      await OrganizationFollower.create({
+        organizationId: org._id,
+        userId: new mongoose.Types.ObjectId(userId)
+      });
+      await Organization.updateOne({ _id: org._id }, { $inc: { followerCount: 1 } });
+      res.json({ following: true });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to toggle follow' });
+  }
+});
+
+// Follow multiple organizations
+router.post('/follow-many', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { organizationIds } = req.body;
+    if (!Array.isArray(organizationIds)) {
+      return res.status(400).json({ error: 'organizationIds must be an array' });
+    }
+    const userId = req.userId;
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const validIds = organizationIds.filter(id => mongoose.Types.ObjectId.isValid(id));
+    const newTargetIds = new Set(validIds);
+
+    const existingFollows = await OrganizationFollower.find({
+      userId: new mongoose.Types.ObjectId(userId)
+    }).select('organizationId').lean();
+
+    const existingIds = new Set(existingFollows.map(f => f.organizationId.toString()));
+
+    const idsToAdd = validIds.filter(id => !existingIds.has(id));
+    const idsToRemove = Array.from(existingIds).filter(id => !newTargetIds.has(id));
+
+    if (idsToRemove.length > 0) {
+      const objectIdsToRemove = idsToRemove.map(id => new mongoose.Types.ObjectId(id));
+      await OrganizationFollower.deleteMany({
+        userId: new mongoose.Types.ObjectId(userId),
+        organizationId: { $in: objectIdsToRemove }
+      });
+      await Organization.updateMany(
+        { _id: { $in: objectIdsToRemove } },
+        { $inc: { followerCount: -1 } }
+      );
+    }
+
+    if (idsToAdd.length > 0) {
+      const objectIdsToAdd = idsToAdd.map(id => new mongoose.Types.ObjectId(id));
+      const docs = objectIdsToAdd.map(id => ({
+        organizationId: id,
+        userId: new mongoose.Types.ObjectId(userId)
+      }));
+      await OrganizationFollower.insertMany(docs);
+      await Organization.updateMany(
+        { _id: { $in: objectIdsToAdd } },
+        { $inc: { followerCount: 1 } }
+      );
+    }
+
+    res.json({ success: true, added: idsToAdd.length, removed: idsToRemove.length });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to follow organizations' });
   }
 });
 

@@ -32,5 +32,6 @@ dist-ssr
 /backend/dist
 
 # Env files
-frontend/.env.local
-backend/.env
+.env
+.env.*
+!.env.example

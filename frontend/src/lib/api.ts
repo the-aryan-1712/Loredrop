@@ -1,5 +1,5 @@
 // Use relative /api in dev (proxied to backend); full URL when VITE_API_URL is set (e.g. production)
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : 'http://localhost:3001/api');
+export const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : 'http://localhost:3001/api');
 
 async function getAuthToken(): Promise<string | null> {
   // First try to get token from localStorage (email auth)
@@ -274,6 +274,23 @@ export const organizationsAPI = {
 
   getUserMemberships: async () => {
     return fetchWithAuth(`${API_BASE_URL}/organizations/user/memberships`);
+  },
+
+  getFollowing: async () => {
+    return fetchWithAuth(`${API_BASE_URL}/organizations/user/following`);
+  },
+
+  toggleFollow: async (orgId: string) => {
+    return fetchWithAuth(`${API_BASE_URL}/organizations/${orgId}/follow`, {
+      method: 'POST',
+    });
+  },
+
+  followMany: async (organizationIds: string[]) => {
+    return fetchWithAuth(`${API_BASE_URL}/organizations/follow-many`, {
+      method: 'POST',
+      body: JSON.stringify({ organizationIds }),
+    });
   },
 
   getOrganizationAdmins: async () => {
