@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Mail, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function EmailVerificationPage() {
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ export default function EmailVerificationPage() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/send-verification-code`, {
+      const response = await fetch(`${API_BASE_URL}/auth/send-verification-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: emailToUse }),
@@ -89,7 +90,7 @@ export default function EmailVerificationPage() {
         return;
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/verify-code`, {
+      const response = await fetch(`${API_BASE_URL}/auth/verify-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -139,7 +140,7 @@ export default function EmailVerificationPage() {
     setResendCooldown(60);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/send-verification-code`, {
+      const response = await fetch(`${API_BASE_URL}/auth/send-verification-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: normalizeEmail(iitEmail) }),
@@ -180,7 +181,7 @@ export default function EmailVerificationPage() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/set-password`, {
+      const response = await fetch(`${API_BASE_URL}/auth/set-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

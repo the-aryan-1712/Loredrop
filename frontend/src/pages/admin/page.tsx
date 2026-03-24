@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import { Label } from '@/components/ui/label.tsx';
 import { Plus, ArrowLeft, Calendar, Users, X, UserPlus, AlertCircle, Check, XCircle, Shield } from 'lucide-react';
-import { eventsAPI, organizationsAPI, authAPI, organizationRequestsAPI } from '@/lib/api';
+import { eventsAPI, organizationsAPI, authAPI, organizationRequestsAPI, API_BASE_URL } from '@/lib/api';
 import { Alert, AlertDescription } from '@/components/ui/alert.tsx';
 import { buildOrganizationOptions } from '@/lib/org-hierarchy.ts';
 
@@ -233,7 +233,7 @@ export default function AdminPage() {
     try {
       const token = localStorage.getItem('authToken');
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/events/by-organization/${orgId}`,
+        `${API_BASE_URL}/events/by-organization/${orgId}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -345,7 +345,7 @@ export default function AdminPage() {
             count: Number(eventForm.recurrenceCount) || 1,
           }
         : undefined;
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/events`, {
+      const response = await fetch(`${API_BASE_URL}/events`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1065,7 +1065,7 @@ function OrganizationRequestForm({ onClose, onSuccess }: { onClose: () => void; 
       setIsLoading(true);
       setError(null);
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/organization-requests/${selectedOrgId}/request-access`, {
+      const response = await fetch(`${API_BASE_URL}/organization-requests/${selectedOrgId}/request-access`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

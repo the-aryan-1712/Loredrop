@@ -1,5 +1,5 @@
 // Use relative /api in dev (proxied to backend); full URL when VITE_API_URL is set (e.g. production)
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : 'http://localhost:3001/api');
+export const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : 'http://localhost:3001/api');
 
 async function getAuthToken(): Promise<string | null> {
   // First try to get token from localStorage (email auth)

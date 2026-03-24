@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Mail, Lock, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ export default function LoginPage() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: emailToUse, password }),

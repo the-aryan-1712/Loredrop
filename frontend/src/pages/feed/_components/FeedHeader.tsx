@@ -7,7 +7,7 @@ import { Menu, Moon, Sun, UserPlus, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import NotificationBell from "@/components/NotificationBell.tsx";
-import { organizationsAPI, authAPI } from "@/lib/api";
+import { organizationsAPI, authAPI, API_BASE_URL } from "@/lib/api";
 import { buildOrganizationOptions } from "@/lib/org-hierarchy.ts";
 import platformLogo from "@/Gemini_Generated_Image_wwu3p2wwu3p2wwu3-removebg-preview.png";
 import {
@@ -289,7 +289,7 @@ function OrganizationRequestForm({ onClose }: { onClose: () => void }) {
     try {
       setIsLoading(true);
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/organization-requests/${selectedOrgId}/request-access`, {
+      const response = await fetch(`${API_BASE_URL}/organization-requests/${selectedOrgId}/request-access`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

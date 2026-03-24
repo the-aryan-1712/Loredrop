@@ -24,7 +24,7 @@ cd ..
 
 ### 2. **Environment Setup**
 
-**Frontend** - Create `.env.local`:
+**Frontend** - Create `.env`:
 ```env
 # Firebase Configuration
 VITE_FIREBASE_API_KEY=your_api_key
