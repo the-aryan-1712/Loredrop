@@ -276,6 +276,23 @@ export const organizationsAPI = {
     return fetchWithAuth(`${API_BASE_URL}/organizations/user/memberships`);
   },
 
+  getFollowing: async () => {
+    return fetchWithAuth(`${API_BASE_URL}/organizations/user/following`);
+  },
+
+  toggleFollow: async (orgId: string) => {
+    return fetchWithAuth(`${API_BASE_URL}/organizations/${orgId}/follow`, {
+      method: 'POST',
+    });
+  },
+
+  followMany: async (organizationIds: string[]) => {
+    return fetchWithAuth(`${API_BASE_URL}/organizations/follow-many`, {
+      method: 'POST',
+      body: JSON.stringify({ organizationIds }),
+    });
+  },
+
   getOrganizationAdmins: async () => {
     return fetchWithAuth(`${API_BASE_URL}/organizations/main-admin/organization-admins`);
   },
